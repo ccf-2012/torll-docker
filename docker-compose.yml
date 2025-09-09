@@ -1,0 +1,34 @@
+services:
+  torll2:
+    image: ccf2012/torll2:v1.0.0
+    ports:
+      - "6006:6006"
+    env_file:
+      - ./.env
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+  tordb:
+    image: ccf2012/tordb:v1.0.0
+    ports:
+      - "6009:6009"
+    env_file:
+      - ./.env
+    environment:
+      - FRONTEND_BUILD_DIR=/app/frontend/build
+    depends_on:
+      - mysql
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      
+volumes:
+  mysql-data:

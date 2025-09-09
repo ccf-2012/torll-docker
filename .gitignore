@@ -1,0 +1,8 @@
+docker-compose.override.yml
+tordb/
+torll2/
+.env
+.DS_Store
+tt_*
+*.json
+*.ini
