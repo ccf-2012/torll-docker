@@ -1,6 +1,6 @@
 services:
   torll2:
-    image: ccf2012/torll2:v1.0.0
+    image: ccf2012/torll2:latest
     ports:
       - "6006:6006"
     env_file:
@@ -10,7 +10,7 @@ services:
     restart: unless-stopped
 
   tordb:
-    image: ccf2012/tordb:v1.0.0
+    image: ccf2012/tordb:latest
     ports:
       - "6009:6009"
     env_file:
