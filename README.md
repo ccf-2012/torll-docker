@@ -1,3 +1,11 @@
+# 写在前面
+* 项目是为pt圈的朋友们便利应用所写，源码随docker发布
+* 不欢迎商业应用
+* 个人编程练习实践，有缘碰上时会维护一下
+* 安全方面完全没底，在公网使用请自己多加小心
+
+> 下面有请 gemini 为你介绍如何安装使用
+
 # 项目 Docker 快速启动指南
 
 欢迎使用！本指南将帮助你通过 Docker 快速启动 `torll2` 和 `tordb` 服务。
@@ -59,7 +67,7 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 
 ## 其他常用命令
 
-- **查看所有服务日志**: `docker-compose logs -f`
-- **停止并移除容器**: `docker-compose down`
-- **仅停止服务**: `docker-compose stop`
-- **仅启动服务**: `docker-compose start`
+- **查看所有服务日志**: `docker compose logs -f`
+- **停止并移除容器**: `docker compose down`
+- **仅停止服务**: `docker compose stop`
+- **仅启动服务**: `docker compose start`
