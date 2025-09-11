@@ -1,12 +1,12 @@
 # 写在前面
-* 项目是为pt圈的朋友们便利应用所写，源码随docker发布
+* 项目是为pt圈的朋友们便利应用所写，源码随docker释出
 * 不欢迎商业应用
 * 个人编程练习实践，有缘碰上时会维护一下
 * 安全方面完全没底，在公网使用请自己多加小心
 
 > 下面有请 gemini 为你介绍如何安装使用
 
-# 一 项目 Docker 快速启动指南
+# 一、 项目 Docker 快速启动指南
 
 欢迎使用！本指南将帮助你通过 Docker 快速启动 `torll2` 和 `tordb` 服务。
 
@@ -84,8 +84,8 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 -   **torll2**: 主应用，负责任务调度、RSS解析、连接下载器和媒体库管理。
 -   **tordb**: 辅助服务，提供电影、剧集等元数据信息。`torll2` 通过查询它来获取媒体信息。
 -   **qBittorrent**: 下载客户端。`torll2` 会将下载任务发送给它。
--   **rcp 脚本**: 一个在下载机上运行的“信使”。当 qBittorrent 下载完成后，会调用此脚本，由它来通知 `torll2` 进行后续的整理（重命名、硬链接等）操作。
-
+-   **[rcp 脚本](https://github.com/ccf-2012/rcp)**: 一个在下载机上运行的“信使”。当 qBittorrent 下载完成后，会调用此脚本，由它来通知 `torll2` 进行后续的整理（重命名、硬链接等）操作。
+-   **[torfilter 油猴脚本](https://github.com/ccf-2012/torfilter)**: 在站点网页上发起过滤、查重和下载的脚本。
 ---
 
 ## 配置步骤
@@ -108,11 +108,11 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
 
-### 步骤 3: 配置下载后自动整理 (rcp 脚本)
+### 步骤 3: 在下载器所在机器上配置 rcp 脚本
 
 这一步是为了实现下载完成后，`torll2` 能自动对文件进行重命名和分类。
 
-1.  **复制脚本**: 将 `torll2` 项目代码中的 `rcp` 目录，完整地复制到你**运行 qBittorrent 的机器**上（例如，你的 NAS）。
+1.  **下载脚本**: 从 [rcp 脚本仓库](https://github.com/ccf-2012/rcp) 下载到你**运行 qBittorrent 的机器**上（例如，你的 NAS）。
 2.  **修改 `rcp.sh`**:
     -   用文本编辑器打开 `rcp` 目录下的 `rcp.sh` 文件。
     -   修改 `cd` 后面的路径，使其指向 `rcp` 目录在你下载机上的**绝对路径**。
@@ -142,18 +142,19 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 ### 步骤 4: 添加索引站点
 
 1.  导航至 **索引** -> **站点设置**。
-2.  点击 **添加站点**，从预设列表中选择你的 PT 站点，并配置你的站点 `Cookie` 和 `速览URL`。
+2.  点击 **添加站点**，从预设列表中选择你的 PT 站点，并配置:
+  * 你的站点 `Cookie` 
+  * `速览URL` - 这是用于浏览站点时的起始 url，在点选过滤按钮时会基于此 url 进行拼接
 
 ### 步骤 5: 添加 RSS 订阅
 
 1.  导航至 **RSS** -> **RSS源**。
 2.  点击 **添加FEED**，填入从站点获取的 RSS 订阅链接。
-3.  根据需要配置 **Filter** (过滤器)，通过 JSON 格式的规则实现精准下载。
+3.  根据需要配置 **Filter** (过滤器)，可以配置多个过滤规则，只有全部 filter 通过才收录，通过 JSON 格式的规则实现精准下载。过滤规则示例见下：
 
     **过滤器示例:**
     ```json
-    {
-      "filters": [
+    [
         {
           "tag": "中字剧集",
           "title_not_regex": "x264|720p",
@@ -161,13 +162,24 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
           "size_gb_min": 2,
           "size_gb_max": 15
         }
-      ]
-    }
+    ]
     ```
+    **可用过滤器字段:**
+-   `title_regex`, `title_not_regex`: 对种子**标题**进行正则匹配或排除。
+-   `subtitle_regex`, `subtitle_not_regex`: 对种子**副标题**进行正则匹配或排除。
+-   `rsstags_regex`, `rsstags_not_regex`: 对站点的**种子标签** (Tags) 进行正则匹配或排除。
+-   `rsscat_regex`, `rsscat_not_regex`: 对站点的**种子分类** (Category) 进行正则匹配或排除。
+-   `size_gb_min`, `size_gb_max`: 对种子**大小**设置 GB 单位的上下限。
+-   `rate_min`: 对 IMDB / Douban **评分**设置最小值要求。
+
 
 ### 步骤 6 (可选): 配置通知服务
 
 在 **设置** -> **通知** 中，你可以根据需要配置 Telegram 或 Emby 通知，以便在下载完成或出错时收到提醒。
+
+### 步骤 7 (可选): 安装油猴脚本
+
+详见 [torfilter 油猴脚本](https://github.com/ccf-2012/torfilter)
 
 ---
 
