@@ -98,19 +98,20 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 
 1.  在 `torll2` 界面中，导航至 **设置** -> **TORCP 服务设置**。
 2.  填写以下信息：
-    -   **TorcpDB URL**: `http://tordb:6009`
+    -   **TorDB URL**: `http://tordb:6009`
         > **说明**: `tordb` 是 Docker 网络内部的服务名，`torll2` 通过这个地址访问 `tordb` 服务。
-    -   **TorcpDB API Key**: 填写你在 `.env` 文件中为 `TORDB_API_KEY` 设置的值。
+    -   **TorDB API Key**: 填写你在 `.env` 文件中为 `TORDB_API_KEY` 设置的值。
 3.  点击保存。
 
 ### 步骤 2: 配置下载器
 
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
+3.  这里有一个远端映射路径 `Local Map Path` 此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
 
 ### 步骤 3: 在下载器所在机器上配置 rcp 脚本
 
-这一步是为了实现下载完成后，`torll2` 能自动对文件进行重命名和分类。
+这一步是为了实现下载完成后，与 `torll2` 通信获取信息后，按要求对文件进行重命名和分类。
 
 1.  **下载脚本**: 从 [rcp 脚本仓库](https://github.com/ccf-2012/rcp) 下载到你**运行 qBittorrent 的机器**上（例如，你的 NAS）。
 2.  **修改 `rcp.sh`**:
