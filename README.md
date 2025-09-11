@@ -84,7 +84,7 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 -   **torll2**: 主应用，负责任务调度、RSS解析、连接下载器和媒体库管理。
 -   **tordb**: 辅助服务，提供电影、剧集等元数据信息。`torll2` 通过查询它来获取媒体信息。
 -   **qBittorrent**: 下载客户端。`torll2` 会将下载任务发送给它。
--   **[rcp 脚本](https://github.com/ccf-2012/rcp)**: 一个在下载机上运行的“信使”。当 qBittorrent 下载完成后，会调用此脚本，由它来通知 `torll2` 进行后续的整理（重命名、硬链接等）操作。
+-   **[rcp 脚本](https://github.com/ccf-2012/rcp)**: 一个在下载机上运行的“信使”。当 qBittorrent 下载完成后，会调用此脚本，由它向 `torll2` 请求数据，然后执行后续的整理（重命名、硬链接等）操作。
 -   **[torfilter 油猴脚本](https://greasyfork.org/zh-CN/scripts/451748)**: 在站点网页上发起过滤、查重和下载的脚本。
 ---
 
