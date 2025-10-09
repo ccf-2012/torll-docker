@@ -3,7 +3,12 @@
 * 不欢迎商业应用
 * 安全方面，在公网使用请自己多加小心
 
+# 文档
+* 以Github Pages托管，请访问：[安装与使用文档](https://ccf-2012.github.io/torll2-doc/)
+
+
 ## latest update:
+* 2025-10-08: 远程 rcp_agent 实现远程下载器中的种子改名硬链、修改、重建
 * 20250919: arm64, amd64 架构 buildx
 * previous: 基本成型
 
