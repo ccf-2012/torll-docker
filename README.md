@@ -32,6 +32,7 @@
     - `MYSQL_ROOT_PASSWORD`: 为数据库设置一个**强密码**。
     - `TORLL2_ADMIN_USER`: 设置 `torll2` 的初始**管理员用户名**。
     - `TORLL2_ADMIN_PASSWORD`: 设置 `torll2` 的初始**管理员密码**。
+    - `MYSQL_HOST`: 使用这里的 docker-compose.yml 建的话，设为 `mysql` 。
     - `TORDB_API_KEY=some_api_key`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
     - `TORDB_TMDB_API_KEY`: 填入你的 The Movie Database (TMDB) 的 API Key。你可以从 [TMDB 官网](https://www.themoviedb.org/settings/api) 免费申请。
 
