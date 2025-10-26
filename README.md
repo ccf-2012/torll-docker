@@ -8,7 +8,8 @@
 
 
 ## latest update:
-* 2025-10-08: 远程 rcp_agent 实现远程下载器中的种子改名硬链、修改、重建
+* 2025-10-26: 搜索功能：支持 Prowlarr；刮削：local, agent后台刷新机制大量修正；
+* 2025-10-08: 远程 rcp_agent 实现远程下载器中的种子改名硬链、修改、重建；
 * 20250919: arm64, amd64 架构 buildx
 * previous: 基本成型
 
