@@ -3,7 +3,7 @@ services:
     image: ccf2012/torll2:latest
     ports:
       - "6006:6006"
-    volume:
+    volumes:
       - /media:<your media path> # <-- 修改这里指向你的 emby 硬链生成位置
     env_file:
       - ./.env

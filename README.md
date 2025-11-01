@@ -44,7 +44,7 @@
 services:
   torll2:
   #...  
-    volume:
+    volumes:
       - /media:<your media path> # <-- 修改这里指向你的 emby 硬链生成位置
 ```
 
