@@ -45,7 +45,7 @@ services:
   torll2:
   #...  
     volumes:
-      - /media:<your media path> # <-- 修改这里指向你的 emby 硬链生成位置
+      - <your host emby path>:/media  # <-- 修改这里将 /media 指向你的宿主机上的 emby 硬链生成位置
 ```
 
 ## 步骤 2: 启动服务
