@@ -39,6 +39,15 @@
     - `TORDB_API_KEY=some_api_key`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
     - `TORDB_TMDB_API_KEY`: 填入你的 The Movie Database (TMDB) 的 API Key。你可以从 [TMDB 官网](https://www.themoviedb.org/settings/api) 免费申请。
 
+3. 修改 `docker-compose.yml` 中的一行，将 Emby Media 的路径 mount 给 Docker 内
+```yml
+services:
+  torll2:
+  #...  
+    volume:
+      - /media:<your media path> # <-- 修改这里指向你的 emby 硬链生成位置
+```
+
 ## 步骤 2: 启动服务
 
 在项目根目录（即 `docker-compose.yml` 所在的目录）打开终端，运行以下命令：
@@ -121,37 +130,40 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
 3.  这里有一个远端映射路径 `Local Map Path` 此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
+4.  处理模式有 `local`, `agent`, `legacy` 几种，参见：[下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
 
-### 步骤 3: 在下载器所在机器上配置 rcp 脚本
 
-这一步是为了实现下载完成后，与 `torll2` 通信获取信息后，按要求对文件进行重命名和分类。
+### 步骤 3: 在下载器所在机器上配置  agent 
+参见：[下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
+如果是 Docker 部署的，则以 agent 模式控制较简单，在下载器所在机器上：
+1. 下载 rcp
+```sh
+git clone https://github.com/ccf-2012/rcp
+cd rcp
+```
 
-1.  **下载脚本**: 从 [rcp 脚本仓库](https://github.com/ccf-2012/rcp) 下载到你**运行 qBittorrent 的机器**上（例如，你的 NAS）。
-2.  **修改 `rcp.sh`**:
-    -   用文本编辑器打开 `rcp` 目录下的 `rcp.sh` 文件。
-    -   修改 `cd` 后面的路径，使其指向 `rcp` 目录在你下载机上的**绝对路径**。
-    -   确认执行 `rcp.py` 的 `python` 命令路径是否正确。很多设备的默认 Python 版本较低，请确保使用 Python 3.10+ 的解释器。
+2. 编辑一个 config.ini, 内容为：
+```ini
+[torll]
+# torll2服务的URL地址，地址按自己的设，后面路径不动
+url = http://<your.torll2.host:6006>/api/v1/torcp/info
+# torll2服务的API Key，由torll2 启动时得到
+api_key = <api key get from torll2>
+# qbit 的名字，与在 torll2 中配置的下载器名字对上
+qbitname = <qb name set in torll2>
 
-    ```sh
-    #!/usr/bin/bash
-    # 脚本所在的绝对路径
-    cd /path/to/your/rcp 
-    # 使用正确的 Python 解释器路径执行 rcp.py
-    /opt/bin/python rcp.py $1 -t $2 -u $3 -n $4 >> rcp.log 2>> rcp2e.log
-    ```
+[emby]
+# Emby/Jellyfin媒体库的根目录
+root_path = <your media path >
+```
 
-3.  **修改 `config.ini`**:
-    -   在 `rcp` 目录中，将 `config.ini.template` 复制为 `config.ini`。
-    -   修改 `config.ini` 文件，填入 `torll2` 的 `url` 和 `api_key`。
-        -   `url`: `torll2` 服务的地址，例如 `http://192.168.1.100:6006`。
-        -   `api_key`: `torll2` 自动生成的 API Key（请从 `docker compose logs torll2` 日志中获取）。
+3. 启动 `rcp_agent`
 
-4.  **配置 qBittorrent**:
-    -   在 qBittorrent 的 **设置** -> **下载** -> **“Torrent 完成时运行外部程序”** 中，填入以下命令（请使用 `rcp.sh` 的绝对路径）：
+```sh
+# 启一个 screen 
+python rcp_agent.py
+```
 
-    ```sh
-    sh /path/to/your/rcp/rcp.sh "%F" "%I" "%L" "%N"
-    ```
 
 ### 步骤 4: 添加索引站点
 
