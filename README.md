@@ -70,10 +70,10 @@ docker compose up --build -d
 
 现在，你可以通过浏览器访问你的应用了：
 
-- **torll2**: [http://localhost:6006](http://localhost:6006)
+- **torll2**: http://<your server ip >:6006
   - 使用你在 `.env` 文件中设置的 `TORLL2_ADMIN_USER` 和 `TORLL2_ADMIN_PASSWORD` 登录。
 
-- **tordb**: [http://localhost:6009](http://localhost:6009)
+- **tordb**: http://<your server ip>:6009
 
 
 ## 其他常用命令
@@ -119,7 +119,12 @@ docker compose up --build -d
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
 3.  这里有一个远端映射路径 `Local Map Path` 此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
-4.  处理模式有 `local`, `agent`, `legacy` 几种，参见：[下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
+4.  处理模式，有 3 种，分别为 local, agent, legacy:
+    1.  由 torll2 直接控制本地选 local，这通常需要 torll2 直接运行，在 Docker 中运行使用此模式较麻烦；
+    2.  torll2 在 Docker 中直接控制下载器，或者下载器在远程，选 agent
+    3.  由 qbittorrent 完成后调用脚本发起硬链，选 legacy，这个模式对于远端下载器或Docker外下载器，无法修改和删除硬链
+    4.  详见 [下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
+
 
 
 ### 步骤 3: 在下载器所在机器上配置  agent 
