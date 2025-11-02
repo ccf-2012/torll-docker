@@ -118,7 +118,8 @@ docker compose up --build -d
 
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
-3.  这里有一个远端映射路径 `Local Map Path` 此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
+3.  **本地路径映射**，此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
+    -   对于 Docker 中运行的情况，需要在 `docker-compose.yml` 中将外部路径映射在 `/media`，然后这里填比如 `/media/emby`   
 4.  处理模式，有 3 种，分别为 local, agent, legacy:
     1.  由 torll2 直接控制本地选 local，这通常需要 torll2 直接运行，在 Docker 中运行使用此模式较麻烦；
     2.  torll2 在 Docker 中直接控制下载器，或者下载器在远程，选 agent
@@ -157,7 +158,7 @@ root_path = <your media path >
 # 启一个 screen 
 python rcp_agent.py
 ```
-
+默认监听在 `6008` 端口，在 torll2 中下载器设置中，选处理模式 `agent` ，RCP Agent URL设为比如：http://192.168.5.8:6008/
 
 ### 步骤 4: 添加索引站点
 
@@ -166,11 +167,15 @@ python rcp_agent.py
   * 你的站点 `Cookie` 
   * `速览URL` - 这是用于浏览站点时的起始 url，在点选过滤按钮时会基于此 url 进行拼接
 
+
 ### 步骤 5: 添加 RSS 订阅
 
-1.  导航至 **RSS** -> **RSS源**。
-2.  点击 **添加FEED**，填入从站点获取的 RSS 订阅链接。
-3.  过滤规则请参阅文末的 **过滤器规则说明** 章节。
+1.  导航至 **RSS** -> **RSS源**;
+2.  点击 **添加FEED**，填入从站点获取的 RSS 订阅链接。链接类型，对大部分内站来说选 `nexusphp` ; 在站点上生成 rss 链接时，`标题格式` 尽可能多选，特别是副标题，标签，torll2 会解析并利用;
+3.  `是否启用` 开关打开，则后台按所设的 `间隔（分钟）` 定时刷 rss;
+4.  根据需要配置 **Filter** (过滤器)，可以配置多个过滤规则，只有全部 filter 通过才收录，通过 JSON 格式的规则实现精准下载。详见 [过滤器规则说明](../features/rss.md);
+5. `匹配时下载`  如果打勾，则 **Filter** (过滤器) 条件满足即发起下载，否则添加到数据库中，在RSS条目列表中，人工浏览可发起下载;
+
 
 
 ### 步骤 6 (可选): 配置通知服务
@@ -293,8 +298,8 @@ python rcp_agent.py
         "mode": "all",
         "rules": [
           { "field": "size_gb", "operator": "lt", "value": 55 },
-          { "field": "title", "operator": "not_regex", "value": "S\\\\d+E\\\\d+|720p" },
-          { "field": "subtitle", "operator": "not_regex", "value": "第\\\\d+\\s*集" }
+          { "field": "title", "operator": "not_regex", "value": "S\\d+E\\d+|720p" },
+          { "field": "subtitle", "operator": "not_regex", "value": "第\\d+\\s*集" }
         ]
       }
     ]
