@@ -8,7 +8,7 @@
 
 
 ## latest update:
-* 2025-11-1:  安全性审查加固，所有端点作认证；远程机器删除硬链文件；媒体标记(正在看，不想看，已看完...) ；根据标记清理空间；
+* 2025-11-2:  安全性审查加固，所有端点作认证；远程机器删除硬链文件；媒体标记(正在看，不想看，已看完...) ；根据标记清理空间；一些默认值，方便 Docker 使用者；
 * 2025-10-28: 下载模块改为单例后台排队，解决卡死以及竞态等问题；数据库少量修改，更新需要删除 mysql_data volume 或者手工进后台 `alembic upgrade head`；
 * 2025-10-26: 搜索功能：支持 Prowlarr；刮削：local, agent后台刷新机制大量修正；
 * 2025-10-08: 远程 rcp_agent 实现远程下载器中的种子改名硬链、修改、重建；
@@ -35,8 +35,9 @@
     - `MYSQL_ROOT_PASSWORD`: 为数据库设置一个**强密码**。
     - `TORLL2_ADMIN_USER`: 设置 `torll2` 的初始**管理员用户名**。
     - `TORLL2_ADMIN_PASSWORD`: 设置 `torll2` 的初始**管理员密码**。
+    - `TORLL2_API_KEY` 设置 `torll2` 的 API KEY，将给 rcp, torfilter 使用。
     - `MYSQL_HOST`: 使用这里的 docker-compose.yml 建的话，设为 `mysql` 。
-    - `TORDB_API_KEY=some_api_key`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
+    - `TORDB_API_KEY`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
     - `TORDB_TMDB_API_KEY`: 填入你的 The Movie Database (TMDB) 的 API Key。你可以从 [TMDB 官网](https://www.themoviedb.org/settings/api) 免费申请。
 
 3. 修改 `docker-compose.yml` 中的一行，将 Emby Media 的路径 mount 给 Docker 内
@@ -61,20 +62,8 @@ docker compose up --build -d
 
 ## 步骤 3: 获取 torll2 的 API Key
 
-`torll2` 服务在首次启动时会自动为你生成一个 API Key。你需要通过查看容器日志来获取它。
-
-运行以下命令：
-
-```bash
-docker compose logs torll2
-```
-
-在日志输出中，你应该能找到类似下面的一行信息：
-
-```
-INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
-```
-
+上面 `TORLL2_API_KEY` 设置 `torll2` 的 API KEY，将给 rcp, torfilter 使用。
+如果没有设，则`torll2` 服务在首次启动时会自动为你生成一个 API Key。你需要通过查看容器日志来获取它。
 请**复制并妥善保管**这个 API Key，你将在访问 `torll2` 的 API 时用到它。
 
 ## 步骤 4: 访问应用
