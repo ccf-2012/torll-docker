@@ -3,8 +3,12 @@ services:
     image: ccf2012/torll2:latest
     ports:
       - "6006:6006"
+    volumes:
+      - <your host emby path>:/media  # <-- 修改这里将 /media 指向你的宿主机上的 emby 硬链生成位置，比如
     env_file:
       - ./.env
+    environment:
+      - TZ=Asia/Shanghai
     depends_on:
       - mysql
     restart: unless-stopped
@@ -17,6 +21,7 @@ services:
       - ./.env
     environment:
       - FRONTEND_BUILD_DIR=/app/frontend/build
+      - TZ=Asia/Shanghai
     depends_on:
       - mysql
     restart: unless-stopped

@@ -8,6 +8,7 @@
 
 
 ## latest update:
+* 2025-11-2:  安全性审查加固，所有端点作认证；远程机器删除硬链文件；媒体标记(正在看，不想看，已看完...) ；根据标记清理空间；一些默认值，方便 Docker 使用者；
 * 2025-10-28: 下载模块改为单例后台排队，解决卡死以及竞态等问题；数据库少量修改，更新需要删除 mysql_data volume 或者手工进后台 `alembic upgrade head`；
 * 2025-10-26: 搜索功能：支持 Prowlarr；刮削：local, agent后台刷新机制大量修正；
 * 2025-10-08: 远程 rcp_agent 实现远程下载器中的种子改名硬链、修改、重建；
@@ -34,9 +35,19 @@
     - `MYSQL_ROOT_PASSWORD`: 为数据库设置一个**强密码**。
     - `TORLL2_ADMIN_USER`: 设置 `torll2` 的初始**管理员用户名**。
     - `TORLL2_ADMIN_PASSWORD`: 设置 `torll2` 的初始**管理员密码**。
+    - `TORLL2_API_KEY` 设置 `torll2` 的 API KEY，将给 rcp, torfilter 使用。
     - `MYSQL_HOST`: 使用这里的 docker-compose.yml 建的话，设为 `mysql` 。
-    - `TORDB_API_KEY=some_api_key`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
+    - `TORDB_API_KEY`: 设置一个自己和torll2访问 TORDB 时需要的密码(API Key)
     - `TORDB_TMDB_API_KEY`: 填入你的 The Movie Database (TMDB) 的 API Key。你可以从 [TMDB 官网](https://www.themoviedb.org/settings/api) 免费申请。
+
+3. 修改 `docker-compose.yml` 中的一行，将 Emby Media 的路径 mount 给 Docker 内
+```yml
+services:
+  torll2:
+  #...  
+    volumes:
+      - <your host emby path>:/media  # <-- 修改这里将 /media 指向你的宿主机上的 emby 硬链生成位置
+```
 
 ## 步骤 2: 启动服务
 
@@ -51,30 +62,18 @@ docker compose up --build -d
 
 ## 步骤 3: 获取 torll2 的 API Key
 
-`torll2` 服务在首次启动时会自动为你生成一个 API Key。你需要通过查看容器日志来获取它。
-
-运行以下命令：
-
-```bash
-docker compose logs torll2
-```
-
-在日志输出中，你应该能找到类似下面的一行信息：
-
-```
-INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
-```
-
+上面 `TORLL2_API_KEY` 设置 `torll2` 的 API KEY，将给 rcp, torfilter 使用。
+如果没有设，则`torll2` 服务在首次启动时会自动为你生成一个 API Key。你需要通过查看容器日志来获取它。
 请**复制并妥善保管**这个 API Key，你将在访问 `torll2` 的 API 时用到它。
 
 ## 步骤 4: 访问应用
 
 现在，你可以通过浏览器访问你的应用了：
 
-- **torll2**: [http://localhost:6006](http://localhost:6006)
+- **torll2**: http://<your server ip >:6006
   - 使用你在 `.env` 文件中设置的 `TORLL2_ADMIN_USER` 和 `TORLL2_ADMIN_PASSWORD` 登录。
 
-- **tordb**: [http://localhost:6009](http://localhost:6009)
+- **tordb**: http://<your server ip>:6009
 
 
 ## 其他常用命令
@@ -133,38 +132,47 @@ docker-compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
 
 1.  导航至 **下载** -> **下载客户端**。
 2.  点击 **添加下载器**，并填入你的 qBittorrent 客户端信息（WebUI 地址、用户名、密码）。
-3.  这里有一个远端映射路径 `Local Map Path` 此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
+3.  **本地路径映射**，此路径是 torll2 所在主机访问媒体文件的根目录，用于后续的文件管理（如删除、读取等）。在查找媒体文件时，是由此路径与媒体库中存储的相对路径拼合而成的。比如可以通过本地网络 nfs mount 过来，或上传网盘后rclone(等) mount过来，或者生成 strm 实现访问。
+    -   对于 Docker 中运行的情况，需要在 `docker-compose.yml` 中将外部路径映射在 `/media`，然后这里填比如 `/media/emby`   
+4.  处理模式，有 3 种，分别为 local, agent, legacy:
+    1.  由 torll2 直接控制本地选 local，这通常需要 torll2 直接运行，在 Docker 中运行使用此模式较麻烦；
+    2.  torll2 在 Docker 中直接控制下载器，或者下载器在远程，选 agent
+    3.  由 qbittorrent 完成后调用脚本发起硬链，选 legacy，这个模式对于远端下载器或Docker外下载器，无法修改和删除硬链
+    4.  详见 [下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
 
-### 步骤 3: 在下载器所在机器上配置 rcp 脚本
 
-这一步是为了实现下载完成后，与 `torll2` 通信获取信息后，按要求对文件进行重命名和分类。
 
-1.  **下载脚本**: 从 [rcp 脚本仓库](https://github.com/ccf-2012/rcp) 下载到你**运行 qBittorrent 的机器**上（例如，你的 NAS）。
-2.  **修改 `rcp.sh`**:
-    -   用文本编辑器打开 `rcp` 目录下的 `rcp.sh` 文件。
-    -   修改 `cd` 后面的路径，使其指向 `rcp` 目录在你下载机上的**绝对路径**。
-    -   确认执行 `rcp.py` 的 `python` 命令路径是否正确。很多设备的默认 Python 版本较低，请确保使用 Python 3.10+ 的解释器。
+### 步骤 3: 在下载器所在机器上配置  agent 
+参见：[下载器处理模式](https://ccf-2012.github.io/torll2-doc/features/downloader-modes/)
+如果是 Docker 部署的，则以 agent 模式控制较简单，在下载器所在机器上：
+1. 下载 rcp
+```sh
+git clone https://github.com/ccf-2012/rcp
+cd rcp
+```
 
-    ```sh
-    #!/usr/bin/bash
-    # 脚本所在的绝对路径
-    cd /path/to/your/rcp 
-    # 使用正确的 Python 解释器路径执行 rcp.py
-    /opt/bin/python rcp.py $1 -t $2 -u $3 -n $4 >> rcp.log 2>> rcp2e.log
-    ```
+2. 编辑一个 config.ini, 内容为：
+```ini
+[torll]
+# torll2服务的URL地址，地址按自己的设，后面路径不动
+url = http://<your.torll2.host:6006>/api/v1/torcp/info
+# torll2服务的API Key，由torll2 启动时得到
+api_key = <api key get from torll2>
+# qbit 的名字，与在 torll2 中配置的下载器名字对上
+qbitname = <qb name set in torll2>
 
-3.  **修改 `config.ini`**:
-    -   在 `rcp` 目录中，将 `config.ini.template` 复制为 `config.ini`。
-    -   修改 `config.ini` 文件，填入 `torll2` 的 `url` 和 `api_key`。
-        -   `url`: `torll2` 服务的地址，例如 `http://192.168.1.100:6006`。
-        -   `api_key`: `torll2` 自动生成的 API Key（请从 `docker compose logs torll2` 日志中获取）。
+[emby]
+# Emby/Jellyfin媒体库的根目录
+root_path = <your media path >
+```
 
-4.  **配置 qBittorrent**:
-    -   在 qBittorrent 的 **设置** -> **下载** -> **“Torrent 完成时运行外部程序”** 中，填入以下命令（请使用 `rcp.sh` 的绝对路径）：
+3. 启动 `rcp_agent`
 
-    ```sh
-    sh /path/to/your/rcp/rcp.sh "%F" "%I" "%L" "%N"
-    ```
+```sh
+# 启一个 screen 
+python rcp_agent.py
+```
+默认监听在 `6008` 端口，在 torll2 中下载器设置中，选处理模式 `agent` ，RCP Agent URL设为比如：http://192.168.5.8:6008/
 
 ### 步骤 4: 添加索引站点
 
@@ -173,11 +181,15 @@ docker-compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
   * 你的站点 `Cookie` 
   * `速览URL` - 这是用于浏览站点时的起始 url，在点选过滤按钮时会基于此 url 进行拼接
 
+
 ### 步骤 5: 添加 RSS 订阅
 
-1.  导航至 **RSS** -> **RSS源**。
-2.  点击 **添加FEED**，填入从站点获取的 RSS 订阅链接。
-3.  过滤规则请参阅文末的 **过滤器规则说明** 章节。
+1.  导航至 **RSS** -> **RSS源**;
+2.  点击 **添加FEED**，填入从站点获取的 RSS 订阅链接。链接类型，对大部分内站来说选 `nexusphp` ; 在站点上生成 rss 链接时，`标题格式` 尽可能多选，特别是副标题，标签，torll2 会解析并利用;
+3.  `是否启用` 开关打开，则后台按所设的 `间隔（分钟）` 定时刷 rss;
+4.  根据需要配置 **Filter** (过滤器)，可以配置多个过滤规则，只有全部 filter 通过才收录，通过 JSON 格式的规则实现精准下载。详见 [过滤器规则说明](../features/rss.md);
+5. `匹配时下载`  如果打勾，则 **Filter** (过滤器) 条件满足即发起下载，否则添加到数据库中，在RSS条目列表中，人工浏览可发起下载;
+
 
 
 ### 步骤 6 (可选): 配置通知服务
@@ -301,7 +313,7 @@ docker-compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
         "rules": [
           { "field": "size_gb", "operator": "lt", "value": 55 },
           { "field": "title", "operator": "not_regex", "value": "S\\\\d+E\\\\d+|720p" },
-          { "field": "subtitle", "operator": "not_regex", "value": "第\\d+\s*集" }
+          { "field": "subtitle", "operator": "not_regex", "value": "第\\\\d+\\s*集" }
         ]
       }
     ]
