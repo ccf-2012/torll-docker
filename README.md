@@ -312,8 +312,8 @@ python rcp_agent.py
         "mode": "all",
         "rules": [
           { "field": "size_gb", "operator": "lt", "value": 55 },
-          { "field": "title", "operator": "not_regex", "value": "S\\\\d+E\\\\d+|720p" },
-          { "field": "subtitle", "operator": "not_regex", "value": "第\\\\d+\\s*集" }
+          { "field": "title", "operator": "not_regex", "value": "S\\d+E\\d+|720p" },
+          { "field": "subtitle", "operator": "not_regex", "value": "第\\d+\\s*集" }
         ]
       }
     ]
