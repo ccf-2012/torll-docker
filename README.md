@@ -85,6 +85,20 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
 - **仅启动服务**: `docker compose start`
 
 
+### 使用 Prowlarr (可选)
+
+如果你需要使用 Prowlarr 服务，它被定义在一个单独的 `docker-compose.prowlarr.yml` 文件中。
+
+要启动包含 Prowlarr 在内的所有服务，请在项目根目录运行以下命令：
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
+```
+
+启动后，`torll2` 容器可以通过 `http://prowlarr:9696` 访问 Prowlarr 服务。
+
+**注意：** 如果你之前独立运行过 Prowlarr 容器，请确保在运行上述命令前停止并移除它，以避免端口冲突。
+
 ---
 
 # 二、设置与使用
@@ -274,7 +288,7 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
       {
         "size_gb_max": 55,
         "title_not_regex": "S\\d+E\\d+|720p",
-        "subtitle_not_regex": "第\\d+\\s*集"
+        "subtitle_not_regex": "第\\d+\s*集"
       }
     ]
     ```
@@ -287,7 +301,7 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
         "rules": [
           { "field": "size_gb", "operator": "lt", "value": 55 },
           { "field": "title", "operator": "not_regex", "value": "S\\\\d+E\\\\d+|720p" },
-          { "field": "subtitle", "operator": "not_regex", "value": "第\\\\d+\\s*集" }
+          { "field": "subtitle", "operator": "not_regex", "value": "第\\d+\s*集" }
         ]
       }
     ]
@@ -343,6 +357,3 @@ INFO:     Generated API Key: [xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]
     ```
 
 完成以上步骤后，你的服务就会以最新版本运行。
-
-
-
