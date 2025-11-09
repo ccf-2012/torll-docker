@@ -60,6 +60,20 @@ docker compose up --build -d
 
 首次启动会需要一些时间来下载和构建镜像。完成后，服务将在后台运行。
 
+### 步骤 2.1: 使用 Prowlarr (可选)
+
+如果你需要使用 Prowlarr 服务，它被定义在一个单独的 `docker-compose.prowlarr.yml` 文件中。
+
+要启动包含 Prowlarr 在内的所有服务，请在项目根目录运行以下命令：
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
+```
+
+启动后，`torll2` 容器可以通过 `http://prowlarr:9696` 访问 Prowlarr 服务。
+
+**注意：** 如果你之前独立运行过 Prowlarr 容器，请确保在运行上述命令前停止并移除它，以避免端口冲突。
+
 ## 步骤 3: 获取 torll2 的 API Key
 
 上面 `TORLL2_API_KEY` 设置 `torll2` 的 API KEY，将给 rcp, torfilter 使用。
@@ -84,19 +98,6 @@ docker compose up --build -d
 - **仅启动服务**: `docker compose start`
 
 
-### 使用 Prowlarr (可选)
-
-如果你需要使用 Prowlarr 服务，它被定义在一个单独的 `docker-compose.prowlarr.yml` 文件中。
-
-要启动包含 Prowlarr 在内的所有服务，请在项目根目录运行以下命令：
-
-```bash
-docker-compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
-```
-
-启动后，`torll2` 容器可以通过 `http://prowlarr:9696` 访问 Prowlarr 服务。
-
-**注意：** 如果你之前独立运行过 Prowlarr 容器，请确保在运行上述命令前停止并移除它，以避免端口冲突。
 
 ---
 
