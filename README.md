@@ -8,6 +8,7 @@
 
 
 ## latest update:
+* 2025-11-15： 并行搜索；Jackett Plugin; nexusphp api 准备；
 * 2025-11-9:  CookieCloud 插件；简单的辅种插件; QbUtil 插件 等
 * 2025-11-2:  安全性审查加固，所有端点作认证；远程机器删除硬链文件；媒体标记(正在看，不想看，已看完...) ；根据标记清理空间；一些默认值，方便 Docker 使用者；
 * 2025-10-28: 下载模块改为单例后台排队，解决卡死以及竞态等问题；数据库少量修改，更新需要删除 mysql_data volume 或者手工进后台 `alembic upgrade head`；
@@ -69,6 +70,9 @@ docker compose up --build -d
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prowlarr.yml up -d
+
+# 或者连着 Jackett 也要启动：
+docker compose -f docker-compose.yml -f docker-compose.prowlarr.yml -f docker-compose.jackett.yml up -d
 ```
 
 启动后，`torll2` 容器可以通过 `http://prowlarr:9696` 访问 Prowlarr 服务。
