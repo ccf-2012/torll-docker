@@ -8,6 +8,7 @@
 
 
 ## latest update:
+* 2025-11-20: mteam支持；cross-seeder优化；
 * 2025-11-15： 并行搜索；Jackett Plugin; nexusphp api 准备；
 * 2025-11-9:  CookieCloud 插件；简单的辅种插件; QbUtil 插件 等
 * 2025-11-2:  安全性审查加固，所有端点作认证；远程机器删除硬链文件；媒体标记(正在看，不想看，已看完...) ；根据标记清理空间；一些默认值，方便 Docker 使用者；
